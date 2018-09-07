@@ -18,7 +18,7 @@ class smtplib_test:
         pass 
 
     def create_message_with_attchment(self, userName, userPawd, subject, message_text,
-        fileAtt=[None], To=[], CC=[], BCC=[None]):
+        fileAtt=None, To=[], CC=[], BCC=[None]):
         
         html = """\
         <html>
@@ -52,14 +52,13 @@ class smtplib_test:
         print('msg_1 =>', msg) 
         print('fileName =>', fileAtt) 
         files = []
-        
-        for fileName in files:
-            try:
-                
+        print("Ready enter to for loop..")
+        if fileAtt is not None:
+            files.append(self.attachment(fileAtt))
+            for fileName in files:
+                files.append(self.attachment(fileAtt))
                 print('filename =>', fileName)
-                msg.attach(fileName)
-            except:
-                print("could not attache file")    
+                msg.attach(fileName)  
         # print("To:", msg["To"])
         # print("CC:", msg["CC"])
         # print("BCC:", msg["BCC"])
