@@ -18,7 +18,7 @@ class smtplib_test:
         pass 
 
     def create_message_with_attchment(self, userName, userPawd, subject, message_text,
-        fileAtt=[None], To=[], CC=[], BCC=[None]):
+        attachment_file=None, To=[], CC=[], BCC=[]):
         
         html = """\
         <html>
@@ -49,12 +49,23 @@ class smtplib_test:
         body.set_charset("utf-8")
         msg.attach(body)
         print('msg_1 =>', msg) 
-        print('fileName =>', fileAtt) 
+        print('fileName =>', attachment_file) 
 
-        fileData = open(fileAtt, 'rb')
-        mimeType, mimmeEncoding = mimetypes.guess_type(fileAtt)
-        print("mimetype =>", mimeType)
-        print('mimmeEncoding =>', mimmeEncoding)
+        if attachment_file is not None:
+            for f in attachment_file:
+                try:
+                    file_name = f.split('/')[-1]
+                    part = MIMEBase('application', "octet-stream")
+                    part.set_payload(open(f, 'rb').read())
+                    
+                    encoders.encode_base64(part)
+                    part.add_header('Content-Disposition', 'attachment' ,filename=file_name)
+                    msg.attach(part)
+                    mimeType, mimmeEncoding = mimetypes.guess_type(part)
+                    print("mimetype =>", mimeType)
+                    print('mimmeEncoding =>', mimmeEncoding)
+                except:
+                    print ("could not attache file")
 
         try:
             # '''
@@ -68,13 +79,13 @@ class smtplib_test:
             Put the SMTP connection in TLS (Transport Layer Security) mode.
             '''
             print(msg["To"])
-            # smtp = smtplib.SMTP('smtp.gmail.com', 587)
-            # # smtp.set_debuglevel(2)
-            # smtp.ehlo() # or smtp.helo()
-            # smtp.starttls() 
-            # smtp.login(userName, userPawd)
-            # smtp.sendmail(msg['From'], To + CC + BCC, msg.as_string())
-            # smtp.quit()
+            smtp = smtplib.SMTP('smtp.gmail.com', 587)
+            # smtp.set_debuglevel(2)
+            smtp.ehlo() # or smtp.helo()
+            smtp.starttls() 
+            smtp.login(userName, userPawd)
+            smtp.sendmail(msg['From'], To + CC + BCC, msg.as_string())
+            smtp.quit()
         except errors.MessageError as error:
             print("Something error at", error)
             print('An error occurred: %s' % error)

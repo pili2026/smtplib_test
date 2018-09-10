@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
-import sys
-import base64
 import smtplib
 import mimetypes
 import datetime
-import time
 import logging
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -13,12 +10,14 @@ from email import encoders
 from email import charset
 from email import utils, errors
  
-class smtplib_test:
-    def __init__(self):
-        pass 
+class SmtplibFun:
+    def __init__(self, user_name, user_pawd, subject, message_text):
+        self.user_name = user_name
+        self.user_pawd = user_pawd
+        self.subject = subject
+        self.message_text = message_text
 
-    def create_message_with_attchment(self, userName, userPawd, subject, message_text,
-        fileAtt=None, To=[], CC=[], BCC=[None]):
+    def create_message_with_attchment(self, attachment_file=None, To=[], CC=[], BCC=[]):
         
         html = """\
         <html>
@@ -35,13 +34,13 @@ class smtplib_test:
         msg = MIMEMultipart()
         charset.add_charset('utf-8', charset.SHORTEST, charset.QP, 'utf-8')
 
-        msg['Subject'] = subject + ': [%s]' % str(datetime.date.today())
-        msg['Message'] = message_text
-        msg['From'] = userName
+        msg['Subject'] = self.subject + ': [%s]' % str(datetime.date.today())
+        msg['Message'] = self.message_text
+        msg['From'] = self.user_name
         msg["To"] = ", ".join(To)
         msg["CC"] = ", ".join(CC)
         msg["BCC"] = ", ".join(BCC)
-        msg['Date'] = utils.formatdate(localtime = 1)
+        msg['Date'] = utils.formatdate(localtime=1)
         msg['Message-ID'] = utils.make_msgid()
         msg['Content-Type'] = "text/calendar; charset=utf-8"
         body = MIMEText(html, 'html', "utf-8")
@@ -49,19 +48,13 @@ class smtplib_test:
         # body = MIMEText(message_text, 'plain', "utf-8")
         body.set_charset("utf-8")
         msg.attach(body)
-        print('msg_1 =>', msg) 
-        print('fileName =>', fileAtt) 
-        files = []
-        print("Ready enter to for loop..")
-        if fileAtt is not None:
-            files.append(self.attachment(fileAtt))
-            for fileName in files:
-                files.append(self.attachment(fileAtt))
-                print('filename =>', fileName)
-                msg.attach(fileName)  
-        # print("To:", msg["To"])
-        # print("CC:", msg["CC"])
-        # print("BCC:", msg["BCC"])
+        print('msg =>', msg) 
+         
+        if attachment_file is not None:
+            for file_list in attachment_file:
+                print(file_list)     
+                msg.attach(self.attachment(file_list))
+                print('File Name =>', attachment_file)
         
         try:
             # '''
@@ -74,22 +67,21 @@ class smtplib_test:
             '''
             Put the SMTP connection in TLS (Transport Layer Security) mode.
             '''
-            print(msg["To"])
             smtp = smtplib.SMTP('smtp.gmail.com', 587)
             # smtp.set_debuglevel(2)
             smtp.ehlo() # or smtp.helo()
             smtp.starttls() 
-            smtp.login(userName, userPawd)
+            smtp.login(self.user_name, self.user_pawd)
             smtp.sendmail(msg['From'], To + CC + BCC, msg.as_string())
             smtp.quit()
         except errors.MessageError as error:
             print("Something error at", error)
             print('An error occurred: %s' % error)
 
-    def attachment(self, fileName):
+    def attachment(self, files):
         logging.basicConfig(level=logging.INFO)
-        fileData = open(fileName, 'rb')
-        mimeType, mimmeEncoding = mimetypes.guess_type(fileName)
+        file_data = open(files, 'rb')
+        mimeType, mimmeEncoding = mimetypes.guess_type(files)
         print("mimetype =>", mimeType)
         print('mimmeEncoding =>', mimmeEncoding)
         
@@ -99,26 +91,16 @@ class smtplib_test:
         mainType, subType = mimeType.split('/')
         
         if mainType == 'text':
-            retVal = MIMEText(fileData.read(), _subtype=subType)
+            ret_val = MIMEText(file_data.read(), _subtype=subType, _charset='utf-8')
         else:
-            retVal = MIMEBase(mainType, subType)
-            retVal.set_payload(fileData.read())
-            encoders.encode_base64(retVal)
-        fileName = self.getFileName(fileName)
-        retVal.add_header('Content-Disposition', 'attachment', fileName=fileName)
-        # print('fileName =>', fileName)
-        fileData.close()
-        # print('retVal =>', retVal)
-        return retVal
+            ret_val = MIMEBase(mainType, subType)
+            ret_val.set_payload(file_data.read())
+            encoders.encode_base64(ret_val)
+        file_name = self.getFileName(files)
+        ret_val.add_header('Content-Disposition', 'attachment', filename=file_name)
+        file_data.close()
+        return ret_val
 
     def getFileName(self, sFileName):
-        File = sFileName.split('//')
-        # print('File =>', File)
-        # print('File[-1] =>', File[-1])
+        File = sFileName.split('/')
         return File[-1]    
-
-        
-        
-
-        
-     

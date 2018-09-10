@@ -86,32 +86,34 @@ def mail_main():
     for filename in files:
         print(filename)     
         msg.attach(attachment(filename))
+        print('msg =>', filename)  
+      
     
-    userName = "chiwei2026@gmail.com"
-    userPawd = "pili3722"    
+    # userName = "chiwei2026@gmail.com"
+    # userPawd = "pili3722"    
  
-    try:
-        # '''
-        # Use the SMTP connection on SSL (Secure Sockets Layer) mode.
-        # '''
-        # smtp = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-        # smtp.ehlo()
-        # smtp.login(userName, userPawd)
+    # try:
+    #     # '''
+    #     # Use the SMTP connection on SSL (Secure Sockets Layer) mode.
+    #     # '''
+    #     # smtp = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+    #     # smtp.ehlo()
+    #     # smtp.login(userName, userPawd)
 
-        '''
-        Put the SMTP connection in TLS (Transport Layer Security) mode.
-        '''
-        print(msg["To"])
-        smtp = smtplib.SMTP('smtp.gmail.com', 587)
-        # smtp.set_debuglevel(2)
-        smtp.ehlo() # or smtp.helo()
-        smtp.starttls() 
-        smtp.login(userName, userPawd)
-        smtp.sendmail(msg['From'], To + CC + BCC, msg.as_string())
-        smtp.quit()
-    except errors.MessageError as error:
-        print("Something error at", error)
-        print('An error occurred: %s' % error)
+    #     '''
+    #     Put the SMTP connection in TLS (Transport Layer Security) mode.
+    #     '''
+    #     print(msg["To"])
+    #     smtp = smtplib.SMTP('smtp.gmail.com', 587)
+    #     # smtp.set_debuglevel(2)
+    #     smtp.ehlo() # or smtp.helo()
+    #     smtp.starttls() 
+    #     smtp.login(userName, userPawd)
+    #     smtp.sendmail(msg['From'], To + CC + BCC, msg.as_string())
+    #     smtp.quit()
+    # except errors.MessageError as error:
+    #     print("Something error at", error)
+    #     print('An error occurred: %s' % error)
  
 def getFileName(sFileName):
     File = sFileName.split("//")
